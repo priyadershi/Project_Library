@@ -62,7 +62,6 @@ int main(void)
 }
 
 
-
 int loginAc(void)
 {
     char user[2][20];

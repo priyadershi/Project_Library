@@ -49,6 +49,9 @@ void retur();
 void searc();
 void end();
 
+
+
+
 void main()
 {
     int x;
@@ -481,27 +484,26 @@ void issue()
 
 void retur()
 {
+    founds = 0;
     printf("---------------------");
     printf("\n--Return a Book--");
-    foundb = 0;
     fp = fopen("issueddata.dat", "rb+"); // issue data file open
     fp1 = fopen("book.dat", "rb+");
     fp2 = fopen("student_record.dat", "rb+");
-    FILE *fp3 = fopen("temp1.dat", "ab+");
+    FILE *fp3 = fopen("temp.dat", "ab+");
     if (fp == NULL)
         printf(">>>>error in opening file");
-    foundb = 0;
+
     printf("\n#Enter Book number :"); // Data entry
     scanf("%d", &no);
     printf("\n#Enter Student id no :"); // Data entry
     scanf("%d", &sr);
-    int flg = 1;
+
     while (fread(&isuData, sizeof(struct issueData), 1, fp))
     {
-        if (no == isuData.b.bno && sr == isuData.s.idno && flg == 1) // matching entry
+        if (no == isuData.b.bno && sr == isuData.s.idno && founds == 0) // matching entry
         {
             founds = 1;
-            flg = 0;
             printf("--book retuned successfully--\n");
         }
         else
@@ -511,20 +513,38 @@ void retur()
     }
     if (founds == 0)
     {
-        printf("\n--Wrong book no entered--\n");
+        printf("\n--Wrong Book/Student Number--\n");
+        return;
     }
     fclose(fp);
     fclose(fp3);
     remove("issueddata.dat");              // removing old file
-    rename("temp1.dat", "issueddata.dat"); // rename temprary file to student file
+    rename("temp.dat", "issueddata.dat"); // rename temprary file to student file
 
-    isuData.s.alreadyissued--; // updating student record
+    // updating student record
+    while (fread(&s, sizeof(struct stud), 1, fp2))
+    {
+        if(s.idno == sr)
+            break;
+    }
+    if(s.alreadyissued <= 0)
+    {
+        printf("\n------Student doesn't have Issued any Book!-----\n");
+        return;
+    }
+    s.alreadyissued--;
     fseek(fp2, -1 * sizeof(struct stud), SEEK_CUR);
-    fwrite(&isuData.s, sizeof(struct stud), 1, fp2);
+    fwrite(&s, sizeof(struct stud), 1, fp2);
 
-    isuData.b.quant++; // updating book record
+    // updating book record
+    while(fread(&b,sizeof(struct book),1,fp1))
+    {
+        if(b.bno == no)
+        break;
+    }
+    b.quant++;
     fseek(fp1, -1 * sizeof(struct book), SEEK_CUR);
-    fwrite(&isuData.b, sizeof(struct book), 1, fp1);
+    fwrite(&b, sizeof(struct book), 1, fp1);
 
     //fclose(fp); // closing
     fclose(fp1);

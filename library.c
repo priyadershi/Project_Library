@@ -55,8 +55,6 @@ void main()
     while (1)
     {
         printf("__Welcome to Library_");
-        printf("\n1.Student Portal");
-        printf("\n2.Admin Portal");
         printf("\n3.Exit");
         printf("\nEnter your Choice : ");
         scanf("%d", &n);
